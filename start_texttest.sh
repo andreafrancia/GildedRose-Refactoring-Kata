@@ -5,3 +5,4 @@ if [ ! -d "venv" ]; then
 fi
 venv/bin/pip install texttest
 venv/bin/texttest -d . -con "$@"
+
