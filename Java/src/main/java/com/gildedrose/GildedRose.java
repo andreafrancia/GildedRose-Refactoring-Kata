@@ -13,19 +13,19 @@ class GildedRose {
         items = Stream.of(items).map(this::updateItemQuality).toArray(Item[]::new);
     }
 
-    private boolean isPass(Item item) {
+    private static boolean isPass(Item item) {
         return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
     }
 
-    private boolean isAgedBrie(Item item) {
+    private static boolean isAgedBrie(Item item) {
         return item.name.equals("Aged Brie");
     }
 
-    private boolean isSulfuras(Item item) {
+    private static boolean isSulfuras(Item item) {
         return item.name.equals("Sulfuras, Hand of Ragnaros");
     }
 
-    private Item increaseItemQuality(Item item, int increaseBy) {
+    private static Item increaseItemQuality(Item item, int increaseBy) {
         if (!isSulfuras(item) && item.quality < 50) {
             item.quality += increaseBy;
         }
@@ -33,7 +33,7 @@ class GildedRose {
         return item;
     }
 
-    private Item decreaseItemQuality(Item item, int decreaseBy) {
+    private static Item decreaseItemQuality(Item item, int decreaseBy) {
         if (!isSulfuras(item) && item.quality > 0) {
             item.quality -= decreaseBy;
         }
@@ -41,39 +41,75 @@ class GildedRose {
         return item;
     }
 
+    static interface SellInEvolution
+    {
+        int evolveSellIn(Item item);
+    }
+
+    static class NormalSellIn implements SellInEvolution
+    {
+        @Override
+        public int evolveSellIn(Item item) {
+            return item.sellIn - 1;
+        }
+    }
+    static class Incorruptible implements SellInEvolution
+    {
+        @Override
+        public int evolveSellIn(Item item) {
+            return item.sellIn;
+        }
+    }
+
+    private static SellInEvolution sellInFor(Item item)
+    {
+        if (!isSulfuras(item)) {
+            return new NormalSellIn();
+        } else {
+            return new Incorruptible();
+        }
+    }
+
+
     private Item updateItemQuality(Item item) {
         var updatedItem = new Item(item.name, item.sellIn, item.quality);
+        updatedItem.sellIn = sellInFor(updatedItem).evolveSellIn(updatedItem);
+
+        if(isPass(updatedItem)) {
+            increaseItemQuality(updatedItem, 1);
+            if(updatedItem.sellIn < 10) {
+                increaseItemQuality(updatedItem, 1);
+            }
+            if(updatedItem.sellIn < 5) {
+                increaseItemQuality(updatedItem, 1);
+            }
+
+            // switch (Integer.valueOf(updatedItem.sellIn)) {
+            //     // case Integer i when i < 10 -> increaseItemQuality(updatedItem, 2);
+            //     // case Integer i when i < 5 -> increaseItemQuality(updatedItem, 3);
+            //     // case Integer i when i < 0 -> decreaseItemQuality(updatedItem, updatedItem.quality);
+            //     // default -> System.out.println("");
+            // }
+
+            if (updatedItem.sellIn < 0) {
+                decreaseItemQuality(updatedItem, updatedItem.quality);
+            }
+        }
+
 
         if (!isAgedBrie(updatedItem) && !isPass(updatedItem)) {
             decreaseItemQuality(updatedItem, 1);
-        } else {
+        }
+        if(isAgedBrie(updatedItem)) {
             increaseItemQuality(updatedItem, 1);
-
-            if (isPass(updatedItem)) {
-                if (updatedItem.sellIn < 11) {
-                    increaseItemQuality(updatedItem, 1);
-                }
-
-                if (updatedItem.sellIn < 6) {
-                    increaseItemQuality(updatedItem, 1);
-                }
-            }
         }
 
-        if (!isSulfuras(updatedItem)) {
-            updatedItem.sellIn = updatedItem.sellIn - 1;
+        if (updatedItem.sellIn < 0 && !isAgedBrie(updatedItem) && !isPass(updatedItem)) {
+            decreaseItemQuality(updatedItem, 1);
         }
 
-        if (updatedItem.sellIn < 0) {
-            if (!isAgedBrie(updatedItem)) {
-                if (!isPass(updatedItem)) {
-                    decreaseItemQuality(updatedItem, 1);
-                } else {
-                    decreaseItemQuality(updatedItem, updatedItem.quality);
-                }
-            } else {
-                increaseItemQuality(updatedItem, 1);
-            }
+        if (updatedItem.sellIn < 0 && isAgedBrie(updatedItem)) {
+            increaseItemQuality(updatedItem, 1);
         }
 
         return updatedItem;
