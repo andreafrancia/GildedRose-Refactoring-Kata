@@ -25,25 +25,37 @@ class GildedRose {
         return item.name.equals("Sulfuras, Hand of Ragnaros");
     }
 
+    private Item increaseItemQuality(Item item, int increaseBy) {
+        if (!isSulfuras(item) && item.quality < 50) {
+            item.quality += increaseBy;
+        }
+
+        return item;
+    }
+
+    private Item decreaseItemQuality(Item item, int decreaseBy) {
+        if (!isSulfuras(item) && item.quality > 0) {
+            item.quality -= decreaseBy;
+        }
+
+        return item;
+    }
+
     private Item updateItemQuality(Item item) {
         var updatedItem = new Item(item.name, item.sellIn, item.quality);
 
         if (!isAgedBrie(updatedItem) && !isPass(updatedItem)) {
-            if (updatedItem.quality > 0 && !isSulfuras(updatedItem)) {
-                updatedItem.quality = updatedItem.quality - 1;
-            }
+            decreaseItemQuality(updatedItem, 1);
         } else {
-            if (updatedItem.quality < 50) {
-                updatedItem.quality = updatedItem.quality + 1;
+            increaseItemQuality(updatedItem, 1);
 
-                if (isPass(updatedItem)) {
-                    if (updatedItem.sellIn < 11 && updatedItem.quality < 50) {
-                        updatedItem.quality = updatedItem.quality + 1;
-                    }
+            if (isPass(updatedItem)) {
+                if (updatedItem.sellIn < 11) {
+                    increaseItemQuality(updatedItem, 1);
+                }
 
-                    if (updatedItem.sellIn < 6 && updatedItem.quality < 50) {
-                        updatedItem.quality = updatedItem.quality + 1;
-                    }
+                if (updatedItem.sellIn < 6) {
+                    increaseItemQuality(updatedItem, 1);
                 }
             }
         }
@@ -55,18 +67,12 @@ class GildedRose {
         if (updatedItem.sellIn < 0) {
             if (!isAgedBrie(updatedItem)) {
                 if (!isPass(updatedItem)) {
-                    if (updatedItem.quality > 0) {
-                        if (!isSulfuras(updatedItem)) {
-                            updatedItem.quality = updatedItem.quality - 1;
-                        }
-                    }
+                    decreaseItemQuality(updatedItem, 1);
                 } else {
-                    updatedItem.quality = updatedItem.quality - updatedItem.quality;
+                    decreaseItemQuality(updatedItem, updatedItem.quality);
                 }
             } else {
-                if (updatedItem.quality < 50) {
-                    updatedItem.quality = updatedItem.quality + 1;
-                }
+                increaseItemQuality(updatedItem, 1);
             }
         }
 
