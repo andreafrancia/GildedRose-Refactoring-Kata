@@ -1,5 +1,7 @@
 package com.gildedrose;
 
+import java.util.stream.Stream;
+
 class GildedRose {
     Item[] items;
 
@@ -8,13 +10,10 @@ class GildedRose {
     }
 
     public void updateQuality() {
-        for (int i = 0; i < items.length; i++) {
-            items[i] = updateItemQuality(items[i]);
-        }
+        items = Stream.of(items).map(this::updateItemQuality).toArray(Item[]::new);
     }
 
-    private boolean isPass(Item item)
-    {
+    private boolean isPass(Item item) {
         return item.name.equals("Backstage passes to a TAFKAL80ETC concert");
     }
 
