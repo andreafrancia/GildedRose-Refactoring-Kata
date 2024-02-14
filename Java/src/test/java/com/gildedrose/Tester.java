@@ -26,10 +26,11 @@ public class Tester {
         for (int i = 0; i < days; i++) {
             printer.println("-------- day " + i + " --------");
             printer.println("name, sellIn, quality");
-            for (Item item : items) {
+            for (Item item : app.items) {
                 printer.println(item.toString());
             }
             printer.println("");
+
             app.updateQuality();
         }
     }
